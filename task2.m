@@ -1,0 +1,1 @@
+clcclear allload task2.mat
