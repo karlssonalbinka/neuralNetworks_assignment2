@@ -13,8 +13,8 @@ iteration = 10^5;
 % iteration = 10^4;
 repetitions = 20;
 % radialFunc = 5;   %a)
-% radialFunc = 20;    %b)
-radialFunc = [1:20];  %c)
+radialFunc = 20;    %b)
+% radialFunc = [1:20];  %c)
 cError = zeros(1,repetitions);
 cErrorFinal = zeros(1,length(radialFunc));
 
@@ -130,25 +130,30 @@ best_w = cell2mat(w_save(best_i));
 
 %Draw where the system outputs zero.
 
-nbrPoints = 5*10^3;
-x = [25-rand(nbrPoints,1)*40, 15-rand(nbrPoints,1)*25];
+% x = [25-rand(nbrPoints,1)*40, 15-rand(nbrPoints,1)*25];
+nbrPoints = 1000;
+x = linspace(-15,25, nbrPoints);
+y = linspace(-10,15,nbrPoints);
 
-disp 1
-g_all = zeros(k, length(x));
-for i=1:length(x)
-    for j = 1:k
-        g_all(j,i) = exp(-0.5*sum((x(i, :) - best_w(j,:)).^2));
+g_all = zeros(k, 1);
+z = zeros(nbrPoints, nbrPoints);
+for i=1:nbrPoints
+    for j =1:nbrPoints
+        for m = 1:k
+            g_all(m) = exp(-0.5*sum(([x(i), y(j)] - best_w(m,:)).^2));
+        end
+        g_all(:) = g_all(:)/sum(g_all(:));
+        z(i,j) = sign(tanh(B*(best_w2'*g_all(:) + T)));
     end
-    g_all(:,i) = g_all(:,i)/sum(g_all(:,i));
 end
-y = sign(tanh(B*(best_w2'*g_all + T)));
 
+%%
 figure(1)
 hold on
 plot(pattern(:,2), pattern(:,3), 'ob')
-plot(x(y==1,1), x(y==1,2), 'g.');
-plot(x(y==-1,1), x(y==-1,2), 'y.');
+contour(x,y,z', 'r');
 plot(best_w(:,1), best_w(:,2), 'r*')
+title('20 weights')
 
 figure(2)
 plot(cErrorFinal);
